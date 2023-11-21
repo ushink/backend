@@ -19,8 +19,9 @@ const server = http.createServer(async (request, response) => {
       return;
     }
     // - Если параметр `hello` указан, но не передано `<name>`, то ответ **строка** "Enter a name", код ответа 400
-    response.status = 400;
-    response.header = "Content-Type: text/plain";
+    // response.status = 400;
+    // response.header = "Content-Type: text/plain";
+    response.writeHead(400, {'Content-Type': 'text/plain'});
     response.write("Enter a name");
     response.end();
 
@@ -48,7 +49,8 @@ const server = http.createServer(async (request, response) => {
     return;
   }
   // - Если переданы какие-либо другие параметры, то пустой ответ, код ответа 500
-  response.status = 500;
+  // response.status = 500;
+  response.writeHead(500, {'Content-Type': 'text/plain'});
   response.end();
 });
 
