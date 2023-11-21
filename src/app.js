@@ -26,7 +26,7 @@ const server = http.createServer(async (request, response) => {
 
   // - Ответом на запрос `?users` должен быть **JSON** с содержимым файла `data/users.json`, код ответа 200
   if (query.has("users")) {
-    response.writeHead(200, { "Content-Type": "text/plain" });
+    response.writeHead(200, { "Content-Type": "application/json" });
     response.write(getUsers());
     response.end();
 
