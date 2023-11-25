@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const userRouter = require("./routes/users");
+const bookRouter = require("./routes/books");
 const loggerOne = require("./middlewares/loggerOne");
 
 dotenv.config();
@@ -16,7 +17,6 @@ const {
 
 mongoose
   .connect(MONGO_URL)
-  .then(() => console.log("Connected to Mongo!"))
   .catch((error) => console.log("[MONGO_CONNECTION]", error));
 
 const app = express();
@@ -38,9 +38,8 @@ app.post("/", (request, response) => {
 });
 
 app.use(userRouter);
+app.use(bookRouter);
 
 app.listen(PORT, () => {
   console.log(`Сервер запущен ${API_URL}:${PORT}`);
 });
-
-
