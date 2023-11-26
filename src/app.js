@@ -1,50 +1,45 @@
-const http = require("http");
-const getUsers = require("./modules/users");
+const express = require("express");
+const dotenv = require("dotenv");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const mongoose = require("mongoose");
+const userRouter = require("./routes/users");
+const bookRouter = require("./routes/books");
+const loggerOne = require("./middlewares/loggerOne");
 
-const server = http.createServer(async (request, response) => {
-  // Написать обработчик запроса:
-  const url = new URL(request.url, `http://${request.headers.host}`);
-  const query = url.searchParams;
-  const name = query.get("hello");
+dotenv.config();
 
-  if (query.has("hello")) {
-    // - Ответом на запрос `?hello=<name>` должна быть **строка** "Hello, <name>.", код ответа 200
-    if (name) {
-      response.writeHead(200, { "Content-Type": "text/plain" });
-      response.write(`Hello, ${name}`);
-      response.end();
+const {
+  PORT = 3000,
+  API_URL = "http://127.0.0.1",
+  MONGO_URL = "mongodb://127.0.0.1:27017/test",
+} = process.env;
 
-      return;
-    }
-    // - Если параметр `hello` указан, но не передано `<name>`, то ответ **строка** "Enter a name", код ответа 400
-    response.writeHead(400, { "Content-Type": "text/plain" });
-    response.write("Enter a name");
-    response.end();
+mongoose
+  .connect(MONGO_URL)
+  .catch((error) => console.log("[MONGO_CONNECTION]", error));
 
-    return;
-  }
+const app = express();
 
-  // - Ответом на запрос `?users` должен быть **JSON** с содержимым файла `data/users.json`, код ответа 200
-  if (query.has("users")) {
-    response.writeHead(200, { "Content-Type": "application/json" });
-    response.write(getUsers());
-    response.end();
+const helloWord = (request, response) => {
+  response.status(200);
+  response.send("Hello, word!");
+};
 
-    return;
-  }
-  // - Если никакие параметры не переданы, то ответ **строка** "Hello, World!", код ответа 200
-  if (request.url === "/") {
-    response.writeHead(200, { "Content-Type": "text/plain" });
-    response.write("Hello, word!");
-    response.end();
+app.use(cors());
+app.use(loggerOne);
+app.use(bodyParser.json());
 
-    return;
-  }
-  // - Если переданы какие-либо другие параметры, то пустой ответ, код ответа 500
-  response.writeHead(500, { "Content-Type": "text/plain" });
-  response.end();
+app.get("/", helloWord);
+
+app.post("/", (request, response) => {
+  response.status(200);
+  response.send("Hello from POST!");
 });
 
-server.listen(3003, () => {
-  console.log("Сервер запущен");
+app.use(userRouter);
+app.use(bookRouter);
+
+app.listen(PORT, () => {
+  console.log(`Сервер запущен ${API_URL}:${PORT}`);
 });
